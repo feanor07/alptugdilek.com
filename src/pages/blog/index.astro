@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const postFiles = import.meta.glob<{ frontmatter: { title: string; date: string; description: string } }>('./posts/*.md', { eager: true });
+const posts = Object.entries(postFiles)
+  .map(([path, post]) => ({
+    ...post,
+    url: path.replace('./posts/', '/blog/posts/').replace('.md', ''),
+  }))
+  .sort((a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime());
+---
+
+<Base title="Blog — Alptug Dilek">
+  <section>
+    <h1>Blog</h1>
+    <ul>
+      {posts.map((post) => (
+        <li>
+          <a href={post.url}>{post.frontmatter.title}</a>
+          <p class="description">{post.frontmatter.description}</p>
+          <time datetime={post.frontmatter.date}>
+            {new Date(post.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </time>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  li:first-child {
+    border-top: 1px solid var(--color-border);
+  }
+
+  li a {
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  li a:hover {
+    text-decoration: underline;
+  }
+
+  .description {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+  }
+
+  time {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+</style>

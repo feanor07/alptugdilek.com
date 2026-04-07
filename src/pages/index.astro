@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+
+const postFiles = import.meta.glob<{ frontmatter: { title: string; date: string; description: string } }>('./blog/posts/*.md', { eager: true });
+const posts = Object.entries(postFiles)
+  .map(([path, post]) => ({
+    ...post,
+    url: path.replace('./blog/posts/', '/blog/posts/').replace('.md', ''),
+  }))
+  .sort((a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime())
+  .slice(0, 3);
+---
+
+<Base title="Alptug Dilek">
+  <section class="intro">
+    <h1>Alptug Dilek</h1>
+    <p>
+      Software engineer with nearly 20 years of experience building systems.
+      I care about simplicity, clear abstractions, and shipping software that works.
+    </p>
+    <p class="current-role">Staff Engineer at <a href="https://www.tekmetric.com/" target="_blank" rel="noopener">Tekmetric</a>.</p>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/alptug-dilek-5b97853/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/feanor07" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.toptal.com/resume/alptug-dilek" target="_blank" rel="noopener">Toptal</a>
+      <a href="https://stackoverflow.com/users/6245575/feanor07" target="_blank" rel="noopener">Stack Overflow</a>
+    </div>
+  </section>
+
+  {posts.length > 0 && (
+    <section class="recent-posts">
+      <h2>Posts</h2>
+      <ul>
+        {posts.map((post) => (
+          <li>
+            <a href={post.url}>{post.frontmatter.title}</a>
+            <time datetime={post.frontmatter.date}>
+              {new Date(post.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+            </time>
+          </li>
+        ))}
+      </ul>
+      <a href="/blog" class="all-posts">All posts &rarr;</a>
+    </section>
+  )}
+</Base>
+
+<style>
+  .intro {
+    margin-bottom: 3rem;
+  }
+
+  .intro h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+    color: #999;
+    margin-bottom: 0.75rem;
+  }
+
+  .current-role {
+    font-size: 0.9rem;
+    color: #999;
+  }
+
+  .intro p {
+    color: var(--color-text-muted);
+    max-width: 480px;
+  }
+
+  .links {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .recent-posts h2 {
+    margin-bottom: 1rem;
+  }
+
+  .recent-posts ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .recent-posts li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.6rem 0;
+  }
+
+  .recent-posts li a {
+    text-decoration: none;
+  }
+
+  .recent-posts li a:hover {
+    text-decoration: underline;
+  }
+
+  .recent-posts time {
+    font-size: 0.8rem;
+    color: #999;
+    white-space: nowrap;
+    margin-left: 1rem;
+  }
+
+  .all-posts {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+</style>
