@@ -5,7 +5,10 @@ export default defineConfig({
   site: 'https://alptugdilek.com',
   markdown: {
     shikiConfig: {
-      theme: 'github-light',
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
     },
   },
 });
