@@ -12,8 +12,8 @@
   --color-border: #e5e5e5;
   --color-bg: #fff;
   --color-link: #1a1a1a;
-  --color-code-bg: #f5f5f5;
-  --max-width: 640px;
+  --color-code-bg: #f0f0f0;
+  --max-width: 740px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -108,4 +108,17 @@ ul, ol {
 img {
   max-width: 100%;
   height: auto;
+}
+
+.astro-code {
+  background-color: var(--color-code-bg) !important;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
 }
