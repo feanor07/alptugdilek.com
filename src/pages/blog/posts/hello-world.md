@@ -26,4 +26,3 @@ Let’s see where this goes.
 ---
 
 _Drafted with AI, refined by me._
-— Alptug
