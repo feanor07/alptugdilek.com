@@ -21,6 +21,7 @@ const { title, description = 'Alptug Dilek — Software Engineer' } = Astro.prop
     <meta property="og:url" content={Astro.url.href} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="alternate" type="application/rss+xml" title="Alptug Dilek" href="/rss.xml" />
     <title>{title}</title>
   </head>
   <body>
@@ -28,6 +29,7 @@ const { title, description = 'Alptug Dilek — Software Engineer' } = Astro.prop
       <a href="/">alptug dilek</a>
       <span class="nav-links">
         <a href="/blog">blog</a>
+        <a href="/rss.xml">rss</a>
       </span>
     </nav>
     <main>
