@@ -28,11 +28,12 @@ You might model it like this:
 
 ```java
 sealed interface Payment
-        permits Payment.CreditCard, Payment.PayPal, Payment.BankTransfer {}
+        permits Payment.CreditCard, Payment.PayPal, Payment.BankTransfer {
 
-record CreditCard(String number) implements Payment {}
-record PayPal(String email) implements Payment {}
-record BankTransfer(String iban) implements Payment {}
+    record CreditCard(String number) implements Payment {}
+    record PayPal(String email) implements Payment {}
+    record BankTransfer(String iban) implements Payment {}
+}
 ```
 
 Now you want to process payments:
