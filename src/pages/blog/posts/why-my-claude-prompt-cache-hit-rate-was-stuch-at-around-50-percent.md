@@ -134,6 +134,8 @@ echo "test" | (cd /tmp && claude -p --no-session-persistence --output-format jso
   --model "$MODEL") | jq '{cache_read: .usage.cache_read_input_tokens, cache_create: .usage.cache_creation_input_tokens}'
 ```
 
+Don't be surprised by the token counts. The `"test"` prompt itself is only a couple of tokens. The thousands of tokens in `cache_read` and `cache_create` come from the system prompt that Claude Code injects automatically. That injected context is exactly what we're measuring.
+
 ## What I Measured
 
 Here's what I measured across four consecutive runs. Between run 1 and run 2 everything was committed, clearing untracked files from `git status`. Between run 3 and run 4 a new dummy file was added.
