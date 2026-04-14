@@ -92,18 +92,18 @@ Reproducible on my machine, version-pinned, no other variables changed.
 * It wasn't happening on version 2.1.104
 * It reads the prompt and produces a very small number of tokens (11–16)
 * It happens on simple single-turn calls with no explicit subagent usage
-* The Haiku call never benefits from prompt caching. `cache_read=0` every time
+* The Haiku call never benefits from prompt caching (`cache_read=0`)
 * The cost scales with prompt size. My 26k token transcripts generated ~10k token Haiku calls
-* On my 26k token transcripts, Haiku added roughly $0.01 per call. Against an Opus call costing ~$0.16, that's around 6–7% overhead you didn't ask for and can't currently opt out of
+* On my 26k token transcripts, Haiku added roughly $0.01 per call. Against an Opus call costing ~$0.16, that's about 6–7% overhead you didn’t ask for and can’t currently opt out of
 * It appeared between two patch versions (2.1.104 → 2.1.107). I couldn't find any release notes describing this change in the Claude Code changelog: [https://code.claude.com/docs/en/changelog#2-1-107](https://code.claude.com/docs/en/changelog#2-1-107)
 
 ## What I don't know
 
-The exact internal mechanism is unclear. Based on the [official sub-agents documentation](https://code.claude.com/docs/en/sub-agents.md), which describes built-in subagents such as Explore that use Haiku by default, this is likely Claude Code invoking an internal subagent automatically. A related [community GitHub issue](https://github.com/anthropics/claude-code/issues/22445) discusses similar unexpected model routing behavior. But I haven't confirmed the exact cause, only the behavior.
+The exact internal mechanism is unclear. Based on the [official sub-agents documentation](https://code.claude.com/docs/en/sub-agents.md), built-in subagents such as Explore use Haiku by default. This suggests Claude Code may be invoking an internal subagent automatically. A related [community GitHub issue](https://github.com/anthropics/claude-code/issues/22445) discusses similar unexpected model routing behavior. But I haven't confirmed the exact cause, only the behavior.
 
 It's also possible the Haiku call is doing something useful, for example routing or classifying the prompt before the Opus call. If that were the case, you would expect to see some benefit in the Opus token counts or latency across versions. I didn't measure latency, and the token counts don't show an obvious savings. So the net effect, from where I'm sitting, looks like added cost with no visible upside.
 
-Constantine Mirin documented a [similar finding through OpenTelemetry monitoring](https://mirin.pro/blog/claude-code-subagents-haiku-telemetry/), finding that 36% of Haiku subagent calls were doing complex reasoning tasks rather than simple lookups. Worth reading alongside this investigation.
+Constantine Mirin documented a [similar finding through OpenTelemetry monitoring](https://mirin.pro/blog/claude-code-subagents-haiku-telemetry/), finding that 36% of Haiku subagent calls were doing complex reasoning tasks rather than simple lookups. Worth reading alongside this.
 
 ## What you can do
 
@@ -113,7 +113,7 @@ Check your own runs by inspecting the raw response:
 echo "test" | claude -p --output-format json --model claude-opus-4-6 | jq '.modelUsage'
 ```
 
-If you see a model you didn't ask for, you're being routed. As of now I haven't found a reliable way to suppress it. If you know of a flag or workaround that does, I'd love to hear it.
+If you see a model you didn’t ask for, your request is being routed. As of now I haven't found a reliable way to suppress it. If you know of a flag or workaround that does, I'd love to hear it.
 
 ## The bigger picture
 
