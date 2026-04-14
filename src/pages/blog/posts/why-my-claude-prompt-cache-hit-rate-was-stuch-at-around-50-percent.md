@@ -14,14 +14,14 @@ It didn't.
 
 ## Why This Matters
 
-Prompt caching is one of the most effective cost optimizations in the Claude API. When you send identical input multiple times, Anthropic caches processed tokens server-side so subsequent calls skip reprocessing the prompt.
+Prompt caching is one of the most effective cost optimizations in the Claude API. When you send identical input multiple times, [Anthropic prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) caches processed tokens server-side so subsequent calls skip reprocessing the prompt.
 
 After the first call warms the cache, reads are much cheaper. Cache reads cost about 10% of normal input token prices. For large prompts, this can reduce input costs by 80–90% across repeated calls.
 
 The expected behavior is simple:
 
-* Run 1 warms the cache
-* Runs 2–5 are nearly free
+* Run 1 **warms the cache**
+* Runs 2–5 are **nearly free**
 
 That wasn't happening.
 
@@ -29,7 +29,7 @@ That wasn't happening.
 
 I observed this behavior while running `claude-sonnet-4-6`, though the issue is not model-specific.
 
-When I looked at raw token usage across runs, each call was re-creating roughly half the cache instead of reading it:
+When I looked at raw token usage across runs, each call re-created roughly half the cache instead of reading it:
 
 ```
 run_1: 24,075 tokens  (cache_read=0,     cache_create=24,073)  ← warms cache
@@ -39,18 +39,20 @@ run_4: 24,138 tokens  (cache_read=11780, cache_create=12,356)
 run_5: 24,159 tokens  (cache_read=11780, cache_create=12,377)
 ```
 
-A quick note on the fields: `cache_create` is the number of tokens written to the cache on that call. You pay full input price for these. `cache_read` is the number of tokens read from an existing cache, which is roughly 10× cheaper. In a healthy batch run, only run 1 should have `cache_create`. Subsequent runs should be almost entirely `cache_read`.
+A quick note on the fields: `cache_create` is the number of tokens written to the cache on that call. You pay full input price for these. 
 
-Cache hit rate was stuck around 50% when it should have been close to 100% from run 2 onward.
+`cache_read` is the number of tokens read from an existing cache, which is roughly 10× cheaper. In a healthy batch run, only run 1 should have `cache_create`. Subsequent runs should be almost entirely `cache_read`.
 
-For a ~24k token prompt, that meant paying full price for roughly 12,000 tokens on every run. This effectively doubled input processing cost across the experiment.
+Cache hit rate was stuck around **50%** when it should have been close to **100%** from run 2 onward.
+
+For a ~24K token prompt, that meant paying full price for roughly 12,000 tokens on every run. This effectively doubled input processing cost across the experiment.
 
 ## The Real Clue: The Input Was Growing
 
 The numbers reveal something subtle. The total input was not stable. It grew by about 21 tokens per run.
 
 * Run 1: 24,075 tokens
-* Run 5: 24,159 tokens
+* Run 5: 24,159 tokens (**+84 tokens**)
 
 The prompt file, transcript, and goals had not changed.
 
@@ -86,7 +88,7 @@ But the effective input was not.
 
 ## The Fix
 
-Running Claude from a neutral directory outside the git repository prevents workspace context from being injected. Combined with `--no-session-persistence`, the input becomes truly static.
+Running Claude from a neutral directory outside the git repository prevents workspace context injection. Combined with `--no-session-persistence`, the input becomes truly static.
 
 ```bash
 TMP_INPUT="$(mktemp /tmp/claude_input_XXXXXX.txt)"
@@ -98,7 +100,7 @@ trap 'rm -f "$TMP_INPUT"' EXIT
   --model "$MODEL" < "$TMP_INPUT" > "$OUTPUT")
 ```
 
-### Why This Works
+### Why This Fix Works Reliably
 
 * `-p` runs Claude in print mode for scripting
 * `--no-session-persistence` prevents history from being saved
@@ -138,7 +140,11 @@ Don't be surprised by the token counts. The `"test"` prompt itself is only a cou
 
 ## What I Measured
 
-Here's what I measured across four consecutive runs. Between run 1 and run 2 everything was committed, clearing untracked files from `git status`. Between run 3 and run 4 a new dummy file was added.
+Here’s what I measured across four consecutive runs.
+
+Between run 1 and run 2, everything was committed, clearing untracked files from `git status`.
+
+Between run 3 and run 4, a new dummy file was added.
 
 ```
 ┌─────┬─────────────┬────────────┬──────────────┬────────────────────────────────────────────────────────────┐
@@ -182,7 +188,7 @@ If you are using `claude -p` in evaluation scripts or batch pipelines, inspect y
 * `cache_read_input_tokens`
 * `cache_creation_input_tokens`
 
-If creation stays high after the first run, your input is not as static as you think.
+If `cache_creation_input_tokens` stays high after the first run, your input is not as static as you think.
 
 ---
 
