@@ -28,7 +28,7 @@ I was inspecting the `modelUsage` field in the raw JSON response, something that
 }
 ```
 
-I had specified Opus. I was running a simple `claude -p` single-turn call. No subagents, no tools, no complex workflows. Yet Haiku read my entire prompt (10,856 tokens) and produced 16 tokens before Opus did the actual work.
+I specified Opus. I was running a simple `claude -p` single-turn call. No subagents, no tools, no complex workflows. Yet Haiku read my entire prompt (10,856 tokens) and produced 16 tokens before Opus did the actual work.
 
 ## Pinning the version
 
@@ -99,7 +99,7 @@ Reproducible on my machine, version-pinned, no other variables changed.
 
 ## What I don't know
 
-The exact internal mechanism is unclear. Based on the [official sub-agents documentation](https://code.claude.com/docs/en/sub-agents.md), which describes built-in subagents such as Explore that use Haiku by default, this is likely Claude Code invoking an internal subagent automatically. But I haven't confirmed the exact cause, only the behavior.
+The exact internal mechanism is unclear. Based on the [official sub-agents documentation](https://code.claude.com/docs/en/sub-agents.md), which describes built-in subagents such as Explore that use Haiku by default, this is likely Claude Code invoking an internal subagent automatically. A related [community GitHub issue](https://github.com/anthropics/claude-code/issues/22445) discusses similar unexpected model routing behavior. But I haven't confirmed the exact cause, only the behavior.
 
 It's also possible the Haiku call is doing something useful, for example routing or classifying the prompt before the Opus call. If that were the case, you would expect to see some benefit in the Opus token counts or latency across versions. I didn't measure latency, and the token counts don't show an obvious savings. So the net effect, from where I'm sitting, looks like added cost with no visible upside.
 
