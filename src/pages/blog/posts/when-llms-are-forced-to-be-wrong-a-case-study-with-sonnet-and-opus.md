@@ -6,7 +6,13 @@ description: "A practical case study showing how LLMs fail under ambiguity and m
 tags: ["llm", "prompt-engineering", "data-extraction", "ai-reliability", "claude"]
 ---
 
-I thought this would be a straightforward comparison.
+I expected this to be a straightforward comparison.
+
+It wasn't.
+
+Both models failed, not randomly, but systematically.
+
+They didn't just make mistakes. They were being forced to be wrong.
 
 As a long-time fan of Galatasaray S.K., I picked a few chaotic Champions League matches full of edge cases: dense scoring, cancellations, and messy commentary.
 
@@ -190,7 +196,7 @@ In other words, more effort alters the path—but not the result.
 
 ### Takeaways
 
-Across these four cases, a pattern emerges.
+Across these four cases, a consistent pattern emerges:
 
 When signals are clear, both Claude Sonnet and Claude Opus perform reliably. Even dense sequences of goals are handled without issue as long as each event has a clear anchor.
 
